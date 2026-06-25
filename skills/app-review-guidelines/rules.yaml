@@ -1,0 +1,219 @@
+# Greenlight rule set (machine-readable).
+#
+# Source of truth for the wording and detection notes is the human reference
+# base in skills/app-review-guidelines/references/*. This file is what
+# server/greenlight_mcp/audit.py consumes to score a project.
+#
+# Each rule:
+#   id        stable identifier (kebab, store-prefixed)
+#   store     apple | google
+#   section   guideline section (Apple) or named policy (Google)
+#   title     short human label
+#   severity  block | warn | info
+#               block = counts against the go/no-go verdict when it fails
+#               warn  = should-fix, does not block
+#               info  = advisory
+#   check     what the rule asserts, in one line
+#   fix       the concrete remediation
+#   detect    how the engine evaluates it:
+#               kind   the inspector signal (see audit.py DETECTORS)
+#               ...    kind-specific parameters
+#             detect.kind "manual" means it cannot be verified statically
+#             (login-gated console state or human judgement) and is surfaced
+#             as a manual-check item, never a silent pass.
+version: 1
+
+rules:
+  # ---------------------------------------------------------------- Apple
+  - id: apple-2.1-placeholders
+    store: apple
+    section: "2.1"
+    title: "App completeness (no placeholders)"
+    severity: warn
+    check: "No placeholder text or obvious unfinished content in the build."
+    fix: "Remove lorem-ipsum, TODO, 'coming soon', and test strings before submitting."
+    detect:
+      kind: placeholders
+
+  - id: apple-2.1-demo-account
+    store: apple
+    section: "2.1(b)"
+    title: "Working demo account for login walls"
+    severity: warn
+    check: "If the app has a login wall, review notes must include a working demo account."
+    fix: "Add demo credentials in App Review notes and keep the backend live during review."
+    detect:
+      kind: login_demo_account
+
+  - id: apple-2.3.3-screenshots-real
+    store: apple
+    section: "2.3.3"
+    title: "Screenshots show the app in use"
+    severity: warn
+    check: "Store screenshots reflect actual app screens, not splash/login/marketing art."
+    fix: "Use real in-app captures; overlays are fine but the frame must be the actual app."
+    detect:
+      kind: manual
+
+  - id: apple-2.3.7-name-length
+    store: apple
+    section: "2.3.7"
+    title: "App name <= 30 characters"
+    severity: block
+    check: "App name is 30 characters or fewer."
+    fix: "Shorten the App Store app name to 30 characters or fewer."
+    detect:
+      kind: name_length
+      max: 30
+
+  - id: apple-2.3.10-other-platforms
+    store: apple
+    section: "2.3.10"
+    title: "No other-platform / store mentions in metadata"
+    severity: warn
+    check: "Metadata does not reference Android, Google Play, APK, or other marketplaces."
+    fix: "Remove other-platform and store references from name, subtitle, keywords, description."
+    detect:
+      kind: metadata_forbidden_tokens
+      tokens: ["android", "google play", "apk", "windows", "play store"]
+
+  - id: apple-3.1.1-external-payment
+    store: apple
+    section: "3.1.1"
+    title: "Digital goods use StoreKit, not external payment"
+    severity: warn
+    check: "No third-party payment SDK is used to sell in-app digital content."
+    fix: "Use StoreKit in-app purchase for digital content; external links need storefront eligibility + entitlement."
+    detect:
+      kind: payment_sdk
+
+  - id: apple-4.2-webview-wrapper
+    store: apple
+    section: "4.2"
+    title: "More than a repackaged website"
+    severity: warn
+    check: "The app is not a thin WebView wrapper with near-zero native capability."
+    fix: "Add native value: notifications, offline, device integrations, or interactive features."
+    detect:
+      kind: webview_dominant
+
+  - id: apple-5.1.1-privacy-policy
+    store: apple
+    section: "5.1.1(i)"
+    title: "Privacy policy URL present and reachable"
+    severity: block
+    check: "A privacy policy URL is configured and returns HTTP 200."
+    fix: "Add a reachable privacy policy URL in App Store Connect and link it in-app."
+    detect:
+      kind: privacy_policy_url
+
+  - id: apple-5.1.1-purpose-strings
+    store: apple
+    section: "5.1.1(ii)"
+    title: "Specific permission purpose strings"
+    severity: block
+    check: "Every declared sensitive API has a specific, non-boilerplate NS*UsageDescription."
+    fix: "Write a clear purpose string describing the actual use for each permission; remove unused ones."
+    detect:
+      kind: ios_purpose_strings
+
+  - id: apple-5.1.2i-third-party-ai
+    store: apple
+    section: "5.1.2(i)"
+    title: "Third-party AI data-sharing disclosure"
+    severity: block
+    check: "If personal data is sent to a third-party AI service, an in-app disclosure + explicit consent exists."
+    fix: "Add an in-app consent surface naming the AI provider before sending any personal data off-device."
+    detect:
+      kind: ai_endpoint_consent
+
+  - id: apple-2.5.2-runtime-code
+    store: apple
+    section: "2.5.2"
+    title: "Self-contained (no runtime code execution)"
+    severity: warn
+    check: "The app does not download and execute code that changes its features (2026 vibe-coding rule)."
+    fix: "Keep the binary self-contained; builders should emit separately reviewed apps, not mutate the host."
+    detect:
+      kind: runtime_code_exec
+
+  - id: apple-privacy-manifest
+    store: apple
+    section: "Privacy manifest"
+    title: "PrivacyInfo.xcprivacy present"
+    severity: warn
+    check: "The app bundle includes a PrivacyInfo.xcprivacy manifest."
+    fix: "Add a privacy manifest declaring data types, tracking, and Required Reason API usage."
+    detect:
+      kind: ios_privacy_manifest
+
+  # --------------------------------------------------------------- Google
+  - id: google-closed-testing
+    store: google
+    section: "Closed testing (new personal accounts)"
+    title: "12 testers for 14 consecutive days"
+    severity: block
+    check: "New personal accounts ran a closed test with 12+ testers for 14 continuous days before production."
+    fix: "Recruit 12+ real testers, run the closed track 14 consecutive days, then apply for production."
+    detect:
+      kind: manual
+
+  - id: google-privacy-policy
+    store: google
+    section: "User Data policy"
+    title: "Privacy policy URL present and reachable"
+    severity: block
+    check: "A privacy policy URL is configured and returns HTTP 200 (HTML, not PDF)."
+    fix: "Provide a live, app-specific privacy policy URL covering all collected data types."
+    detect:
+      kind: privacy_policy_url
+
+  - id: google-data-safety
+    store: google
+    section: "Data safety"
+    title: "Data safety form matches the binary"
+    severity: warn
+    check: "The Data safety declaration covers every data type the app and its SDKs access."
+    fix: "Inventory SDK data flows and reconcile the Data safety form with the manifest and privacy policy."
+    detect:
+      kind: manual
+
+  - id: google-restricted-permissions
+    store: google
+    section: "Permissions and sensitive APIs"
+    title: "Restricted permissions justified"
+    severity: warn
+    check: "Restricted permissions (background location, SMS, all-files, accessibility, etc.) are declared with an eligible use case."
+    fix: "Remove unused restricted permissions; complete the Permissions Declaration and prominent in-app disclosure for the rest."
+    detect:
+      kind: android_restricted_permissions
+      restricted:
+        - android.permission.ACCESS_BACKGROUND_LOCATION
+        - android.permission.READ_SMS
+        - android.permission.SEND_SMS
+        - android.permission.READ_CALL_LOG
+        - android.permission.MANAGE_EXTERNAL_STORAGE
+        - android.permission.BIND_ACCESSIBILITY_SERVICE
+        - android.permission.QUERY_ALL_PACKAGES
+        - android.permission.SCHEDULE_EXACT_ALARM
+
+  - id: google-target-api
+    store: google
+    section: "Target API level"
+    title: "targetSdkVersion >= 35"
+    severity: block
+    check: "The app targets Android 15 (API 35) or higher."
+    fix: "Set targetSdkVersion to 35+, retest behavior changes, and ship as an AAB."
+    detect:
+      kind: android_target_sdk
+      min: 35
+
+  - id: google-aab-format
+    store: google
+    section: "App bundle"
+    title: "Signed AAB (not APK)"
+    severity: warn
+    check: "The upload is a signed, release Android App Bundle."
+    fix: "Publish a signed .aab and enroll in Play App Signing; APKs are rejected for new apps."
+    detect:
+      kind: manual
