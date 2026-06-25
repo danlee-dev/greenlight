@@ -14,12 +14,22 @@ skills (knowledge), an MCP server (tools that do work), and slash commands
   - `screenshot-studio`: how to capture real screens and render spec-exact images.
   - `store-submission`: how to submit via API / fastlane / Playwright co-pilot.
 - MCP server (`server/`): a Python FastMCP server exposing tools.
-  - `audit_metadata`: maps project facts to guideline checks, returns a checklist
-    and a pass-probability score.
-  - `generate_screenshots`: renders spec-exact PNGs from real screens.
+  - `audit_metadata`: inspects the project (Info.plist / AndroidManifest / gradle /
+    source) and scores it against the `rules.yaml` rule set; returns a checklist,
+    a go/no-go verdict, and a pass-probability score. Never a false "all clear".
+  - `generate_privacy`: drafts a PrivacyInfo.xcprivacy manifest, Apple nutrition-
+    label answers, and Google Data Safety answers from the same scan, flagging
+    data access with no user-facing purpose.
+  - `snapshot_baseline` / `check_update_guardrail`: snapshot the risk-relevant
+    facts of an approved version and diff a later build against it, flagging
+    newly-risky changes (new permission, SDK, AI endpoint, lowered target SDK).
+  - `capture_app_screen` / `list_capture_devices`: capture a real app screen from
+    a booted iOS simulator or Android device (never fabricated UI, Apple 2.3.3).
+  - `generate_screenshots`: renders spec-exact PNGs, compositing a captured real
+    screen into the device frame.
   - `list_specs`: the supported store asset sizes.
-  - cockpit: a local Flask app (localhost) that visualizes audit, assets, and the
-    submission tracker, hot-reloading like HyperFrames.
+  - cockpit: a local Flask app (localhost) that visualizes the live audit
+    (verdict, fixes, manual checks), assets, and the submission tracker.
 - Renders (`renders/`): output PNGs. Templates (`templates/`): HTML/CSS screenshot
   templates (production path).
 
