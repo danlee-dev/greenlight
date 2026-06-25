@@ -17,6 +17,7 @@ from . import screenshots as shots
 from . import audit as audit_mod
 from . import capture as cap
 from . import privacy as priv
+from . import guardrail as guard_mod
 
 ROOT = Path(__file__).resolve().parents[2]
 RENDERS = ROOT / "renders"
@@ -72,6 +73,27 @@ if FastMCP is not None:
         except cap.CaptureError as exc:
             return json.dumps({"error": str(exc)}, ensure_ascii=False)
         return str(path)
+
+    @mcp.tool()
+    def snapshot_baseline(project_path: str, platform: str = "both", out_path: str = "") -> str:
+        """Save a risk-relevant baseline snapshot of the project for the update
+        guardrail. Call this when a version is approved. Returns the file path."""
+        return str(guard_mod.save_baseline(project_path, platform, out_path or None))
+
+    @mcp.tool()
+    def check_update_guardrail(project_path: str, platform: str = "both",
+                               baseline_path: str = "") -> str:
+        """Diff the project against a saved baseline and flag newly-risky changes
+        (new permission, SDK, AI endpoint, lowered target SDK). Without a baseline,
+        returns the current snapshot to save."""
+        base = None
+        if baseline_path:
+            try:
+                base = guard_mod.load_baseline(baseline_path)
+            except Exception as exc:
+                return json.dumps({"error": f"Could not read baseline: {exc}"}, ensure_ascii=False)
+        return json.dumps(guard_mod.guard(project_path, platform, base),
+                          ensure_ascii=False, indent=2)
 
     @mcp.tool()
     def generate_privacy(project_path: str, platform: str = "both") -> str:
