@@ -18,6 +18,7 @@ from . import audit as audit_mod
 from . import capture as cap
 from . import privacy as priv
 from . import guardrail as guard_mod
+from . import resolver as resolver_mod
 
 ROOT = Path(__file__).resolve().parents[2]
 RENDERS = ROOT / "renders"
@@ -73,6 +74,14 @@ if FastMCP is not None:
         except cap.CaptureError as exc:
             return json.dumps({"error": str(exc)}, ensure_ascii=False)
         return str(path)
+
+    @mcp.tool()
+    def resolve_rejection(rejection_text: str, platform: str = "both") -> str:
+        """Map an App Store / Google Play rejection message to root-cause rules and
+        fixes. Extracts cited guideline sections and keywords; returns matched
+        rules + suggested actions (use this to then draft a reply to App Review)."""
+        return json.dumps(resolver_mod.resolve(rejection_text, platform),
+                          ensure_ascii=False, indent=2)
 
     @mcp.tool()
     def snapshot_baseline(project_path: str, platform: str = "both", out_path: str = "") -> str:
