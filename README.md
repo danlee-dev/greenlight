@@ -77,8 +77,31 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md). Design system:
 
 ## Status
 
-Early. This repository is a working scaffold plus a detailed build plan in
-[BUILD_PROMPT.md](./BUILD_PROMPT.md). Contributions welcome.
+Early, in active development. The pre-submission audit is now a real,
+rule-driven engine (`skills/app-review-guidelines/rules.yaml` +
+`server/greenlight_mcp/audit.py`): it inspects a project, scores it against
+~18 Apple and Google rules, and returns an honest go / no-go that never emits a
+false "all clear". Screenshots, privacy, and guided submission are still
+scaffolds per the plan in [BUILD_PROMPT.md](./BUILD_PROMPT.md). Contributions
+welcome.
+
+### Audit configuration (optional)
+
+Some facts (the App Store name, the privacy policy URL, marketing copy) do not
+live in the project source. Drop a `greenlight.json` at your project root so the
+audit can check them:
+
+```json
+{
+  "app_name": "Your App",
+  "privacy_policy_url": "https://example.com/privacy",
+  "description": "One line describing the app."
+}
+```
+
+Anything Greenlight cannot verify statically (closed-testing status, whether a
+URL is reachable, whether screenshots show the real app) is surfaced as a manual
+check, not silently passed.
 
 ## License
 
