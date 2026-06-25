@@ -46,6 +46,7 @@
   .dot{width:9px;height:9px;border-radius:50%;margin-top:7px}
   .s-pass{background:var(--accent)} .s-warn{background:var(--warn)} .s-fail{background:var(--fail)}
   .rule{font-weight:600} .detail{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .fix{margin-top:5px} .manual{display:block;font-size:9px;letter-spacing:.06em;color:var(--muted)}
   .status{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
   .c-pass{color:var(--accent)} .c-warn{color:var(--warn)} .c-fail{color:var(--fail)}
   .frames{display:flex;gap:var(--g3);flex-wrap:wrap}
@@ -97,29 +98,35 @@
 
 <script>
 const SAMPLE = {
-  pass_probability: 72,
+  pass_probability: 54, verdict: "review", blockers: 0, unconfirmed_blockers: 2,
   checks: [
-    {rule:"Apple 2.3.3 Accurate metadata", status:"pass", detail:"Screenshots match the real app screens."},
-    {rule:"Apple 5.1.1 Data collection", status:"warn", detail:"Privacy policy URL not found; required if any data is collected."},
-    {rule:"Apple 4.3(b) Low-value apps", status:"warn", detail:"App may read as a thin wrapper; add native value."},
-    {rule:"Google Play closed testing", status:"fail", detail:"New personal account needs 12 testers for 14 consecutive days."},
-    {rule:"Google Play Data Safety", status:"warn", detail:"Data Safety form not completed."}
+    {rule:"Apple 2.3.7 App name <= 30 characters", status:"pass", detail:"App name is 18 characters.", fix:"", manual:false},
+    {rule:"Apple 5.1.1(i) Privacy policy URL present and reachable", status:"warn", detail:"No privacy policy URL provided.", fix:"Add a reachable privacy policy URL in App Store Connect and link it in-app.", manual:true},
+    {rule:"Apple 5.1.2(i) Third-party AI data-sharing disclosure", status:"warn", detail:"AI endpoint detected; consent cannot be verified statically.", fix:"Add an in-app consent surface naming the AI provider before sending personal data.", manual:true},
+    {rule:"Google Target API level targetSdkVersion >= 35", status:"fail", detail:"targetSdkVersion is 33 (< required 35).", fix:"Set targetSdkVersion to 35+, retest, and ship as an AAB.", manual:false}
   ]
 };
 const SPECS = {iphone_6_9:{w:1320,h:2868}, ipad_13:{w:2064,h:2752}, play_phone:{w:1080,h:1920}};
 const STEPS = ["build","metadata","screenshots","privacy","review notes","submit"];
+const VERDICT_LABEL = {go:"ready to submit", review:"fix issues first", "no-go":"blockers present", unknown:"rules unavailable"};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 
 function render(data, specs){
   document.getElementById('score').textContent = data.pass_probability;
-  const v = document.getElementById('verdict');
-  v.textContent = data.pass_probability >= 85 ? 'ready to submit'
-    : data.pass_probability >= 60 ? 'fix warnings first' : 'blockers present';
+  const label = VERDICT_LABEL[data.verdict] || (data.pass_probability >= 85 ? 'ready to submit'
+    : data.pass_probability >= 60 ? 'fix issues first' : 'blockers present');
+  document.getElementById('verdict').textContent = label;
   const cls = {pass:'pass',warn:'warn',fail:'fail'};
   document.getElementById('checks').innerHTML = data.checks.map(c=>`
     <div class="row">
       <span class="dot s-${cls[c.status]}"></span>
-      <div><div class="rule">${c.rule}</div><div class="detail">${c.detail}</div></div>
-      <div class="status c-${cls[c.status]}">${c.status}</div>
+      <div>
+        <div class="rule">${esc(c.rule)}</div>
+        <div class="detail">${esc(c.detail)}</div>
+        ${c.status!=='pass' && c.fix ? `<div class="detail fix">Fix: ${esc(c.fix)}</div>` : ''}
+      </div>
+      <div class="status c-${cls[c.status]}">${esc(c.status)}${c.manual ? '<span class="manual">manual</span>' : ''}</div>
     </div>`).join('');
   document.getElementById('frames').innerHTML = Object.entries(specs)
     .filter(([k])=>k!=='play_feature').map(([k,s])=>`
