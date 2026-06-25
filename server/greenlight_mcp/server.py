@@ -16,6 +16,7 @@ except Exception:  # pragma: no cover - allows import without deps installed
 from . import screenshots as shots
 from . import audit as audit_mod
 from . import capture as cap
+from . import privacy as priv
 
 ROOT = Path(__file__).resolve().parents[2]
 RENDERS = ROOT / "renders"
@@ -71,6 +72,17 @@ if FastMCP is not None:
         except cap.CaptureError as exc:
             return json.dumps({"error": str(exc)}, ensure_ascii=False)
         return str(path)
+
+    @mcp.tool()
+    def generate_privacy(project_path: str, platform: str = "both") -> str:
+        """Draft privacy declarations from a static project scan.
+
+        Returns JSON with an Apple PrivacyInfo.xcprivacy draft, Apple nutrition-
+        label answers, Google Data Safety answers, and flags for data access with
+        no user-facing purpose. Output is a draft to verify, not authoritative.
+        """
+        return json.dumps(priv.generate(project_path, platform),
+                          ensure_ascii=False, indent=2)
 
     @mcp.tool()
     def audit_metadata(project_path: str, platform: str = "both") -> str:
