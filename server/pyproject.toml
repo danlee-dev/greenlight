@@ -22,3 +22,12 @@ greenlight-mcp = "greenlight_mcp.server:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint.per-file-ignores]
+# Transitional Pillow renderer: scaffold style (E702 semicolons, F841 unused
+# locals). Its visual layout is owner-redesigned / slated for the HTML+Playwright
+# path, so we don't churn it for lint here.
+"greenlight_mcp/screenshots.py" = ["E702", "F841"]
