@@ -77,13 +77,14 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md). Design system:
 
 ## Status
 
-Early, in active development. The pre-submission audit is now a real,
-rule-driven engine (`skills/app-review-guidelines/rules.yaml` +
-`server/greenlight_mcp/audit.py`): it inspects a project, scores it against
-~18 Apple and Google rules, and returns an honest go / no-go that never emits a
-false "all clear". Screenshots, privacy, and guided submission are still
-scaffolds per the plan in [BUILD_PROMPT.md](./BUILD_PROMPT.md). Contributions
-welcome.
+Early, in active development. Implemented and tested today: the pre-submission
+audit (a rule-driven engine over ~18 Apple/Google rules with an honest go/no-go
+that never emits a false "all clear"), the privacy generator (PrivacyInfo.xcprivacy
++ Apple nutrition label + Google Data Safety from a project scan), the update
+guardrail (diff a build against the last approved baseline), and real-screen
+capture (iOS simulator / Android device). Still in progress: the marketing-
+screenshot templates and guided submission, per the plan in
+[BUILD_PROMPT.md](./BUILD_PROMPT.md). Contributions welcome.
 
 ### Audit configuration (optional)
 
