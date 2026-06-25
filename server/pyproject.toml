@@ -1,0 +1,18 @@
+[project]
+name = "greenlight-mcp"
+version = "0.1.0"
+description = "Greenlight MCP server: store-review audit, screenshot rendering, and local cockpit."
+requires-python = ">=3.10"
+dependencies = [
+  "mcp>=1.2.0",
+  "pillow>=10.0.0",
+  "jinja2>=3.1.0",
+  "flask>=3.0.0",
+]
+
+[project.scripts]
+greenlight-mcp = "greenlight_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

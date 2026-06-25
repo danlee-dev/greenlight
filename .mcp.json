@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "greenlight": {
+      "command": "uv",
+      "args": ["--directory", "${CLAUDE_PLUGIN_ROOT}/server", "run", "greenlight-mcp"],
+      "env": {}
+    }
+  }
+}

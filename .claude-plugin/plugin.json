@@ -1,0 +1,10 @@
+{
+  "name": "greenlight",
+  "version": "0.1.0",
+  "description": "Pass App Store and Google Play review on the first try. Pre-submission guideline audit, spec-perfect store screenshots, and guided submission for indie and vibe-coder developers.",
+  "author": { "name": "Seongmin Lee", "email": "hi.danleedev@gmail.com", "url": "https://github.com/danlee-dev" },
+  "homepage": "https://github.com/danlee-dev/greenlight",
+  "repository": "https://github.com/danlee-dev/greenlight",
+  "license": "MIT",
+  "keywords": ["app-store","google-play","app-review","aso","screenshots","ios","android","submission","vibe-coding","fastlane"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "greenlight",
+  "owner": { "name": "Seongmin Lee", "url": "https://github.com/danlee-dev" },
+  "plugins": [
+    {
+      "name": "greenlight",
+      "source": "./",
+      "description": "App Store + Google Play review co-pilot: pre-submission audit, store screenshots, guided submission."
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Greenlight - Cockpit</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f4efe6; --panel:#faf7f1; --ink:#1a1714; --muted:#6b6760;
+    --line:#e2dccf; --line-w:1px;
+    --accent:#1f7a4d; --warn:#9a6b14; --fail:#a8392f;
+    --display:'Archivo',sans-serif;
+    --body:'Hanken Grotesk',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --ko:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',sans-serif;
+    --g1:8px; --g2:16px; --g3:24px; --g4:32px; --g6:48px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .ko,:lang(ko){font-family:var(--ko);letter-spacing:-0.025em}
+  .wrap{max-width:1120px;margin:0 auto;padding:var(--g6) var(--g4)}
+  .mono{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .num{font-variant-numeric:tabular-nums}
+  header{display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:var(--line-w) solid var(--ink);padding-bottom:var(--g3)}
+  .brand{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-0.02em}
+  .brand .dot{color:var(--accent)}
+  .tagline{margin-top:6px;color:var(--muted);font-size:14px}
+  .mark{background:linear-gradient(transparent 58%, rgba(31,122,77,.32) 58%);padding:0 .04em}
+  .verdict{text-align:right}
+  .verdict .score{font-family:var(--display);font-weight:800;font-size:64px;line-height:1;letter-spacing:-0.03em}
+  .verdict .label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  .grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:var(--g6);margin-top:var(--g6)}
+  @media(max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
+  h2{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin:0 0 var(--g3)}
+  .row{display:grid;grid-template-columns:14px 1fr auto;gap:var(--g2);align-items:start;
+    padding:var(--g3) 0;border-bottom:var(--line-w) solid var(--line)}
+  .row:first-of-type{border-top:var(--line-w) solid var(--line)}
+  .dot{width:9px;height:9px;border-radius:50%;margin-top:7px}
+  .s-pass{background:var(--accent)} .s-warn{background:var(--warn)} .s-fail{background:var(--fail)}
+  .rule{font-weight:600} .detail{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .status{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+  .c-pass{color:var(--accent)} .c-warn{color:var(--warn)} .c-fail{color:var(--fail)}
+  .frames{display:flex;gap:var(--g3);flex-wrap:wrap}
+  .frame{border:var(--line-w) solid var(--ink);border-radius:18px;width:128px;height:278px;
+    display:flex;align-items:center;justify-content:center;text-align:center;background:var(--panel)}
+  .frame .mono{font-size:10px}
+  .feat{border:var(--line-w) solid var(--ink);border-radius:10px;width:100%;aspect-ratio:1024/500;
+    margin-top:var(--g3);display:flex;align-items:center;justify-content:center;background:var(--panel)}
+  .track{display:flex;gap:var(--g2);margin-top:var(--g3);flex-wrap:wrap}
+  .step{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+    padding:6px 10px;border:var(--line-w) solid var(--line);border-radius:6px;color:var(--muted)}
+  .step.on{border-color:var(--accent);color:var(--accent)}
+  footer{margin-top:var(--g6);padding-top:var(--g3);border-top:var(--line-w) solid var(--line);
+    display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">Green<span class="dot">light</span></div>
+      <div class="tagline">Pass App Store &amp; Google Play review on the <span class="mark">first try</span>.</div>
+    </div>
+    <div class="verdict">
+      <div class="score num" id="score">--</div>
+      <div class="label" id="verdict">pass probability</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section>
+      <h2>Pre-submission audit</h2>
+      <div id="checks"></div>
+    </section>
+    <section>
+      <h2>Store assets</h2>
+      <div class="frames" id="frames"></div>
+      <div class="feat"><span class="mono">play feature 1024 x 500</span></div>
+      <h2 style="margin-top:48px">Submission</h2>
+      <div class="track" id="track"></div>
+    </section>
+  </div>
+
+  <footer>
+    <span class="mono">Greenlight cockpit</span>
+    <span class="mono">localhost</span>
+  </footer>
+</div>
+
+<script>
+const SAMPLE = {
+  pass_probability: 72,
+  checks: [
+    {rule:"Apple 2.3.3 Accurate metadata", status:"pass", detail:"Screenshots match the real app screens."},
+    {rule:"Apple 5.1.1 Data collection", status:"warn", detail:"Privacy policy URL not found; required if any data is collected."},
+    {rule:"Apple 4.3(b) Low-value apps", status:"warn", detail:"App may read as a thin wrapper; add native value."},
+    {rule:"Google Play closed testing", status:"fail", detail:"New personal account needs 12 testers for 14 consecutive days."},
+    {rule:"Google Play Data Safety", status:"warn", detail:"Data Safety form not completed."}
+  ]
+};
+const SPECS = {iphone_6_9:{w:1320,h:2868}, ipad_13:{w:2064,h:2752}, play_phone:{w:1080,h:1920}};
+const STEPS = ["build","metadata","screenshots","privacy","review notes","submit"];
+
+function render(data, specs){
+  document.getElementById('score').textContent = data.pass_probability;
+  const v = document.getElementById('verdict');
+  v.textContent = data.pass_probability >= 85 ? 'ready to submit'
+    : data.pass_probability >= 60 ? 'fix warnings first' : 'blockers present';
+  const cls = {pass:'pass',warn:'warn',fail:'fail'};
+  document.getElementById('checks').innerHTML = data.checks.map(c=>`
+    <div class="row">
+      <span class="dot s-${cls[c.status]}"></span>
+      <div><div class="rule">${c.rule}</div><div class="detail">${c.detail}</div></div>
+      <div class="status c-${cls[c.status]}">${c.status}</div>
+    </div>`).join('');
+  document.getElementById('frames').innerHTML = Object.entries(specs)
+    .filter(([k])=>k!=='play_feature').map(([k,s])=>`
+    <div class="frame"><span class="mono">${k.replace(/_/g,' ')}<br>${s.w} x ${s.h}</span></div>`).join('');
+  document.getElementById('track').innerHTML = STEPS.map((s,i)=>`
+    <span class="step ${i<3?'on':''}">${i+1}. ${s}</span>`).join('');
+}
+
+async function boot(){
+  let data = SAMPLE, specs = SPECS;
+  try{
+    const [a,s] = await Promise.all([fetch('/api/audit'), fetch('/api/specs')]);
+    if(a.ok) data = await a.json();
+    if(s.ok) specs = await s.json();
+  }catch(e){ /* opened as a file, use sample */ }
+  render(data, specs);
+}
+boot();
+</script>
+</body>
+</html>
