@@ -77,8 +77,27 @@ Greenlight는 이 루프를 없앱니다. 공식 API를 먼저 쓰고, 그다음
 
 ## 상태
 
-초기 단계입니다. 이 저장소는 동작하는 스캐폴드와 [BUILD_PROMPT.md](./BUILD_PROMPT.md)의
-상세 빌드 계획을 담고 있습니다. 기여를 환영합니다.
+초기, 활발히 개발 중입니다. 제출 전 점검은 이제 실제 룰 기반 엔진입니다
+(`skills/app-review-guidelines/rules.yaml` + `server/greenlight_mcp/audit.py`).
+프로젝트를 검사해 애플과 구글 약 18개 룰로 점수를 매기고, 거짓 "이상 없음"을 내지
+않는 정직한 통과/보류 판정을 냅니다. 스크린샷, 프라이버시, 안내형 제출은 아직
+[BUILD_PROMPT.md](./BUILD_PROMPT.md) 계획상 스캐폴드입니다. 기여를 환영합니다.
+
+### 점검 설정 (선택)
+
+앱스토어 이름, 개인정보처리방침 URL, 마케팅 문구 같은 일부 정보는 프로젝트 소스에
+없습니다. 프로젝트 루트에 `greenlight.json`을 두면 점검이 이를 확인할 수 있습니다:
+
+```json
+{
+  "app_name": "Your App",
+  "privacy_policy_url": "https://example.com/privacy",
+  "description": "앱을 한 줄로 설명."
+}
+```
+
+정적으로 확인할 수 없는 항목(클로즈드 테스트 상태, URL 도달 여부, 스크린샷이 실제
+앱인지)은 조용히 통과시키지 않고 수동 확인 항목으로 표시합니다.
 
 ## 라이선스
 
